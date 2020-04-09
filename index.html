@@ -1,0 +1,66 @@
+import urllib.request
+import smtplib
+import time
+from playsound import playsound
+from email.header import Header
+from email.mime.text import MIMEText
+from bs4 import BeautifulSoup
+def send_mail(title, article, receiver):
+    host = 'smtp.qq.com'  # 这是QQ邮箱SMTP服务器的host，其他邮箱有不同可具体查询
+    user = '1273007233@qq.com'#这是邮箱号
+    password = 'kdsmsoqaduktigeg'#这是授权码，注意不是邮箱的密码或者QQ的密码！
+    sender = user
+    coding = 'utf8'
+    message = MIMEText(article, 'plain', coding)
+    message['From'] = Header(sender, coding)
+    message['To'] = Header(receiver, coding)
+    message['subject'] = Header(title, coding)
+
+    try:
+        mail_client = smtplib.SMTP_SSL(host, 465)#部分邮箱信道不同，又有可能没有开启SSL服务，具体查询
+        mail_client.connect(host)
+        mail_client.login(user, password)
+        mail_client.sendmail(sender, receiver, message.as_string())
+        mail_client.close()
+        print('邮件已成功发送给:' + receiver)
+    except:
+        print('发送失败!')
+while True:
+    print("Get Work!")
+    localtime = time.asctime(time.localtime(time.time()))  # 报时，免得程序卡住不知道～
+    print(localtime)
+    url = 'https://www.apple.com.cn/shop/refurbished/ipad'  # 这个是iPad翻新页面
+    headers = {'User-Agent': 'Mozilla/5.0 3578.98 Safari/537.36'}  # 添加headers防止官网认为是爬虫而屏蔽访问
+    req = urllib.request.Request(url, headers=headers)
+    try:
+        rsp = urllib.request.urlopen(req)
+    except:
+        continue
+    html = rsp.read().decode('utf-8', 'ignore')
+    # print(html)
+
+    html = BeautifulSoup(html, 'html.parser')
+    for link in html.find_all('a'):
+        info_link = link.get('href')
+        info_text = link.get_text(strip=True)
+        # print(info_text)
+        # print(info_link + '\n')
+        if info_text == "翻新 11 英寸 iPad Pro 无线局域网机型 64GB - 金色":
+            print('Got 翻新 11 英寸 iPad Pro 无线局域网机型 64GB - 金色!')
+            # playsound('BGM.mp3')
+            print("https://www.apple.com.cn" + info_link)
+            send_mail(info_text, "https://www.apple.com.cn" + info_link, '1273007233@qq.com')
+
+        if info_text == "翻新 11 英寸 iPad Pro 无线局域网机型 64GB - 深空灰色":
+            print('Got 翻新 11 英寸 iPad Pro 无线局域网机型 64GB - 深空灰!')
+            # playsound('BGM.mp3')
+            print("https://www.apple.com.cn" + info_link)
+            send_mail(info_text, "https://www.apple.com.cn" + info_link, '1273007233@qq.com')
+
+        if info_text == "翻新 11 英寸 iPad Pro 无线局域网机型 64GB - 银色":
+            print('Got 翻新 11 英寸 iPad Pro 无线局域网机型 64GB - 银色!')
+            # playsound('BGM.mp3')
+            print("https://www.apple.com.cn" + info_link)
+            send_mail(info_text, "https://www.apple.com.cn" + info_link, '1273007233@qq.com')
+    print('Done!')
+    time.sleep(10)  # 数字决定几秒爬取一次
